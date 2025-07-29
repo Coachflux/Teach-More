@@ -134,7 +134,7 @@
 
         .search-bar {
             width: 100%;
-            padding: 12px 40px 12px 12px;
+            padding: 10px 20px 10px 10px;
             border: none;
             border-radius: 10px;
             box-shadow: inset 9px 9px 18px #a3b1c6, inset -9px -9px 18px #ffffff;
@@ -211,6 +211,102 @@
             transform: translateY(0);
         }
 
+        
+        .feature-container {
+            min-width: 80px;
+            background: #e0e5ec;
+            border-radius: 10px;
+            box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff;
+            padding: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .feature-container:hover {
+            transform: translateY(-4px);
+        }
+        .feature-icon {
+            font-size: 24px;
+            color: #4CAF50;
+        }
+        .feature-title {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #333;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #4CAF50;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .footer-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #e0e5ec;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 0;
+            z-index: 100;
+        }
+        .nav-icon {
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+            padding: 8px;
+            position: relative;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        .nav-icon.active {
+            color: #4CAF50;
+            transform: translateY(-10px);
+        }
+        .nav-icon.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 20px;
+            background: radial-gradient(circle at top, #4CAF50 50%, transparent 50%);
+            opacity: 0;
+            animation: semicircleFade 0.3s ease forwards;
+        }
+        @keyframes semicircleFade {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        @media (min-width: 640px) {
+            .main-container {
+                max-width: 600px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .sliding-images {
+                height: 150px;
+            }
+        }
+
         @media (max-width: 600px) {
             .main-container {
                 padding: 10px;
@@ -236,6 +332,7 @@
                 <img src="https://via.placeholder.com/1200x150/FF5733" class="slider-image" alt="Slide 2">
                 <img src="https://via.placeholder.com/1200x150/33FF57" class="slider-image" alt="Slide 3">
             </div>
+        </div>
             <div class="search-container">
                 <input type="search" class="search-bar" placeholder="Search courses..." aria-label="Search courses">
                 <div class="search-icon" role="button" aria-label="Search">&#128269;</div>
@@ -251,6 +348,7 @@
                     <p class="course-title">Data Science</p>
                     <button class="teach-more-button" aria-label="Learn more about Data Science">Teach More</button>
                 </div>
+            </div>
                 <div class="small-container" role="listitem">
                     <div class="image" role="img" aria-label="Course thumbnail"></div>
                     <p class="course-title">Machine Learning</p>
@@ -262,7 +360,12 @@
                     <button class="teach-more-button" aria-label="Learn more about UI/UX Design">Teach More</button>
                 </div>
             </div>
-        </div>
+    <div class="footer-nav" role="navigation">
+        <div class="nav-icon active" data-nav="home" aria-label="Home">&#127968;</div>
+        <div class="nav-icon" data-nav="map" aria-label="Map">&#128205;</div>
+        <div class="nav-icon" data-nav="track" aria-label="Track">&#128100;</div>
+        <div class="nav-icon" data-nav="alerts" aria-label="Alerts">&#128276;</div>
+        <div class="nav-icon" data-nav="settings" aria-label="Settings">&#9881;</div>
     </div>
 
     <script>
