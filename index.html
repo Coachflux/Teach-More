@@ -157,16 +157,15 @@
         .small-containers {
             display: flex;
             overflow-x: auto;
-            gap: 30px;
-            scrollbar-width: thin;
+            gap: 40px;
         }
 
         .small-container {
             min-width: 150px;
-            background: #e0e5ec;
+            background: linear-gradient(45deg, #001f3f, #003087);
             border-radius: 15px;
             box-shadow: 9px 9px 18px #a3b1c6, -9px -9px 18px #ffffff;
-            padding: 20px;
+            padding: 10px;
             text-align: center;
             transition: transform 0.3s ease;
         }
@@ -186,7 +185,7 @@
         .course-title {
             margin: 10px 0;
             font-size: 0.9em;
-            color: #333;
+            color: #fff;
         }
 
         .teach-more-button {
@@ -194,7 +193,7 @@
             color: #ffffff;
             padding: 10px 20px;
             border: none;
-            border-radius: 10px;
+            border-radius: 50px;
             cursor: pointer;
             transition: background 0.3s ease, transform 0.2s ease;
         }
@@ -395,8 +394,8 @@
                 <input type="search" class="search-bar" placeholder="Search courses..." aria-label="Search courses">
                 <div class="search-icon" role="button" aria-label="Search">&#128269;</div>
             </div>
-            <div class="small-containers" role="list">
-                <div class="small-container" role="listitem">
+            <div class="small-containers" role="">
+                <div class="small-container" role="">
                     <div class="image" role="img" aria-label="Course thumbnail"></div>
                     <p class="course-title">Web Development</p>
                     <button class="teach-more-button" aria-label="Learn more about Web Development">Teach More</button>
