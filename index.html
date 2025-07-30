@@ -25,11 +25,12 @@
         }
 
         .logo {
-            width: 160px;
+            width: 180px;
             height: 120px;
             background: url('img/teachmoree.png') no-repeat center;
             background-size: cover;
             margin-bottom: 10px;
+            shadow: 10px;
         }
 
         .header {
@@ -98,6 +99,7 @@
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
             animation: fall linear infinite;
             pointer-events: none;
+            transform-origin: center;
         }
 
         @keyframes fall {
@@ -170,7 +172,7 @@
         }
 
         // Generate papers at intervals
-        setInterval(createPaper, 200);
+        setInterval(createPaper, 00);
     </script>
 </body>
 </html>
