@@ -476,6 +476,14 @@
                 console.log(`Navigating to ${course} course`);
             });
         });
+       // Footer navigation
+        document.querySelectorAll('.nav-icon').forEach(icon => {
+            icon.addEventListener('click', () => {
+                document.querySelectorAll('.nav-icon').forEach(i => i.classList.remove('active'));
+                icon.classList.add('active');
+                console.log(`Navigated to ${icon.dataset.nav}`);
+            });
+        }); 
     </script>
 </body>
 </html>
