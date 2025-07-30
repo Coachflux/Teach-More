@@ -13,10 +13,39 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            background: linear-gradient(45deg, #4a90e2, #50c9c3);
+            background: linear-gradient(45deg, #001f3f, #003087);
             animation: sparkle 5s infinite;
             font-family: Arial, sans-serif;
             position: relative;
+        }
+
+
+        .body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            animation: sparkle 4s infinite;
+        }
+
+        @keyframes sparkle {
+            0% {
+                left: -100%;
+            }
+            50% {
+                left: 100%;
+            }
+            100% {
+                left: 100%;
+            }
         }
 
         @keyframes sparkle {
@@ -159,7 +188,7 @@
         function createPaper() {
             const paper = document.createElement('div');
             paper.className = 'paper';
-            paper.style.left = Math.random() * 60 + 'vw';
+            paper.style.left = Math.random() * 10 + 'vw';
             paper.style.animationDuration = Math.random() * 4 + 3 + 's';
             paper.style.animationDelay = Math.random() * 2 + 's';
             paper.style.width = Math.random() * 8 + 8 + 'px';
@@ -172,7 +201,7 @@
         }
 
         // Generate papers at intervals
-        setInterval(createPaper, 00);
+        setInterval(createPaper, 300);
     </script>
 </body>
 </html>
