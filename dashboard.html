@@ -521,10 +521,10 @@
     const slides = document.getElementById('slides');
     let slideIndex = 0;
     function slideNext() {
-      slideIndex = (slideIndex + 1) % 3;
-      slides.style.transform = `translateX(-${slideIndex * 33.33}%)`;
+      slideIndex = (slideIndex + 1) % 6;
+      slides.style.transform = `translateX(-${slideIndex * 100}%)`;
     }
-    setInterval(slideNext, 3000);
+    setInterval(slideNext, 4000);
 
     // View All Dropdown
     const viewAllBtn = document.getElementById('view-all');
