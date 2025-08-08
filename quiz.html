@@ -412,7 +412,7 @@
 
     <!-- Question Container -->
     <div class="question-container">
-      <div class="timer">Time: 30m:00s</div>
+      <div class="timer">Time: 15m:00s</div>
       <div class="question-text">Question 1</div>
       <div class="options">
         <div class="option"><p>Option 1</p></div>
@@ -424,7 +424,7 @@
 
     <!-- Navigation Buttons -->
     <div class="nav-buttons">
-      <button class="prev-btn neumorphic">Previous</button>
+      <button class="prev-btn neumorphic">Prev</button>
       <button class="center-btn">📋</button>
       <button class="next-btn neumorphic">Next</button>
     </div>
@@ -450,7 +450,7 @@
 
     <!-- Details Page -->
     <div class="details-page" id="details-page">
-      <button class="neumorphic-btn back-btn">← Back</button>
+      <button class="neumorphic-btn back-btn">←</button>
       <div class="details-content"></div>
     </div>
   </div>
@@ -496,7 +496,7 @@
 
     let currentQuestion = 0;
     let answers = Array(quizData.length).fill(null);
-    let timeLeft = 30 * 60; // 30 minutes in seconds
+    let timeLeft = 15 * 60; // 30 minutes in seconds
 
     // DOM Elements
     const questionContainer = document.querySelector('.question-container');
