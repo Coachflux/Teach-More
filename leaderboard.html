@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teach-More - Leaderboard</title>
+  <style>
+    :root {
+      --bg: #1e1e2f;
+      --surface: #25253b;
+      --text: #e0e0ff;
+      --text-muted: #a0a0cc;
+      --accent: #1db954;
+      --shadow-dark: #171723;
+      --shadow-light: #2f2f45;
+      --radius: 20px;
+    }
+
+    body.light {
+      --bg: #f0f2f5;
+      --surface: #ffffff;
+      --text: #1a1a3d;
+      --text-muted: #666680;
+      --shadow-dark: #d0d4e0;
+      --shadow-light: #ffffff;
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 90px 16px 90px;
+    }
+
+    .top-bar, .bottom-nav { /* same as dailyquiz.html */ }
+    /* copy the .top-bar, .avatar-wrapper, .avatar, .avatar-placeholder, .bottom-nav styles from dailyquiz.html here */
+
+    .container { max-width:760px; margin:0 auto; }
+
+    h2 { color:var(--accent); text-align:center; margin-bottom:32px; }
+
+    table {
+      width:100%;
+      border-collapse: collapse;
+      background:var(--surface);
+      border-radius:var(--radius);
+      overflow:hidden;
+      box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+    }
+
+    th, td {
+      padding:16px;
+      text-align:left;
+      border-bottom:1px solid #333;
+    }
+
+    th {
+      background:#1db95422;
+      color:var(--accent);
+      font-weight:600;
+    }
+
+    tr:hover { background:#2a2a4833; }
+
+    .empty { text-align:center; padding:60px; opacity:0.7; }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar (copy from dailyquiz.html) -->
+  <div class="top-bar">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div class="avatar-wrapper" id="avatar-wrapper"></div>
+      <div>
+        <div style="font-size:0.95rem; opacity:0.8;">Welcome back</div>
+        <div id="user-firstname" style="font-weight:600; color:var(--accent);">Guest</div>
+      </div>
+    </div>
+    <button id="theme-toggle" style="background:none; border:none; font-size:1.6rem; cursor:pointer;">☀️</button>
+  </div>
+
+  <div class="container">
+    <h2>Daily Quiz Leaderboard</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Name</th>
+          <th>Username</th>
+          <th>Time</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+
+    <div id="empty-message" class="empty" style="display:none;">
+      No scores yet — be the first!
+    </div>
+  </div>
+
+  <!-- Bottom nav (copy from dailyquiz.html) -->
+  <nav class="bottom-nav">
+    <a href="dashboard.html">Home</a>
+    <a href="courses.html">Courses</a>
+    <a href="dailyquiz.html">Daily Quiz</a>
+    <a href="leaderboard.html" class="active">Leaderboard</a>
+    <a href="uploadpage.html">Upload</a>
+  </nav>
+
+  <script>
+    // Auth guard
+    if (!localStorage.getItem('currentUser')) {
+      window.location.href = 'login.html';
+    }
+
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    document.getElementById('user-firstname').textContent = currentUser.firstname || 'Guest';
+
+    // Avatar (same as dailyquiz)
+    const avatarWrapper = document.getElementById('avatar-wrapper');
+    if (currentUser.profileImage) {
+      avatarWrapper.innerHTML = `<img class="avatar" src="${currentUser.profileImage}" alt="Profile">`;
+    } else {
+      const initial = (currentUser.firstname || '?')[0].toUpperCase();
+      avatarWrapper.innerHTML = `<div class="avatar-placeholder">${initial}</div>`;
+    }
+
+    // Theme toggle (same as dailyquiz)
+    const themeToggle = document.getElementById('theme-toggle');
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      document.body.classList.add('light');
+      themeToggle.textContent = '🌙';
+    } else {
+      themeToggle.textContent = '☀️';
+    }
+    themeToggle.onclick = () => {
+      document.body.classList.toggle('light');
+      localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+      themeToggle.textContent = document.body.classList.contains('light') ? '🌙' : '☀️';
+    };
+
+    // Load & sort leaderboard
+    let leaderboard = JSON.parse(localStorage.getItem('dailyLeaderboard') || '[]');
+
+    // Sort: highest score first, then fastest time if scores equal
+    leaderboard.sort((a, b) => b.score - a.score || a.time - b.time);
+
+    const tbody = document.getElementById('leaderboard-body');
+    const emptyMsg = document.getElementById('empty-message');
+
+    if (leaderboard.length === 0) {
+      emptyMsg.style.display = 'block';
+    } else {
+      leaderboard.forEach((entry, i) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${i+1}</td>
+          <td>${entry.firstname}</td>
+          <td>@${entry.username}</td>
+          <td>${Math.floor(entry.time / 60)}m ${entry.time % 60}s</td>
+          <td>${entry.score}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>
