@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teach-More - Daily Quiz</title>
+  <style>
+    :root {
+      --bg: #1e1e2f;
+      --surface: #25253b;
+      --text: #e0e0ff;
+      --text-muted: #a0a0cc;
+      --accent: #1db954;
+      --accent-hover: #1ed760;
+      --shadow-dark: #171723;
+      --shadow-light: #2f2f45;
+      --radius: 20px;
+    }
+
+    body.light {
+      --bg: #f0f2f5;
+      --surface: #ffffff;
+      --text: #1a1a3d;
+      --text-muted: #666680;
+      --shadow-dark: #d0d4e0;
+      --shadow-light: #ffffff;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 90px 16px 100px;
+      line-height: 1.5;
+    }
+
+    .top-bar {
+      position: fixed;
+      top:0; left:0; right:0;
+      height:70px;
+      background: var(--surface);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 20px;
+      z-index:100;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    .avatar-wrapper {
+      width:48px; height:48px;
+      border-radius:50%; overflow:hidden;
+      border:2px solid var(--accent);
+    }
+
+    .avatar { width:100%; height:100%; object-fit:cover; }
+
+    .avatar-placeholder {
+      width:100%; height:100%;
+      background:#555; color:white;
+      font-weight:bold; font-size:20px;
+      display:flex; align-items:center; justify-content:center;
+    }
+
+    .container { max-width:760px; margin:0 auto; }
+
+    h2 { color:var(--accent); margin-bottom:16px; }
+
+    .timer {
+      font-size:1.3rem;
+      color:var(--accent);
+      margin-bottom:24px;
+      font-weight:600;
+    }
+
+    .question {
+      background:var(--surface);
+      border-radius:var(--radius);
+      padding:24px;
+      margin-bottom:24px;
+      box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+    }
+
+    .question img {
+      max-width:100%;
+      border-radius:12px;
+      margin:16px 0;
+      display:block;
+    }
+
+    .options {
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-top:16px;
+    }
+
+    .option {
+      background:#2a2a48;
+      padding:16px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:0.2s;
+    }
+
+    body.light .option { background:#e8e8f0; }
+
+    .option:hover {
+      background:var(--accent-hover);
+      color:white;
+    }
+
+    .option input { margin-right:12px; }
+
+    button {
+      background:var(--accent);
+      color:white;
+      border:none;
+      padding:16px 32px;
+      border-radius:12px;
+      font-size:1.1rem;
+      cursor:pointer;
+      margin-top:20px;
+    }
+
+    button:hover { background:var(--accent-hover); }
+
+    #results-popup {
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.7);
+      z-index:200;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .popup-content {
+      background:var(--surface);
+      padding:32px;
+      border-radius:var(--radius);
+      text-align:center;
+      max-width:90%;
+      box-shadow:0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    .bottom-nav {
+      position:fixed;
+      bottom:0; left:0; right:0;
+      height:70px;
+      background:var(--surface);
+      display:flex;
+      justify-content:space-around;
+      align-items:center;
+      box-shadow:0 -4px 16px rgba(0,0,0,0.2);
+      z-index:100;
+    }
+
+    .bottom-nav a {
+      color:var(--text-muted);
+      text-decoration:none;
+      font-size:0.9rem;
+    }
+
+    .bottom-nav a.active { color:var(--accent); font-weight:600; }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar (minimal version) -->
+  <div class="top-bar">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div class="avatar-wrapper" id="avatar-wrapper"></div>
+      <div>
+        <div style="font-size:0.95rem; opacity:0.8;">Welcome back</div>
+        <div id="user-firstname" style="font-weight:600; color:var(--accent);">Guest</div>
+      </div>
+    </div>
+    <button id="theme-toggle" style="background:none; border:none; font-size:1.6rem; cursor:pointer;">☀️</button>
+  </div>
+
+  <div class="container">
+    <h2>Daily Quiz</h2>
+    <div class="timer" id="timer">Time left: --:--</div>
+
+    <div id="question-container"></div>
+
+    <button id="submit-quiz">Submit Quiz</button>
+  </div>
+
+  <!-- Results overlay -->
+  <div id="results-popup">
+    <div class="popup-content">
+      <h2>Your Result</h2>
+      <p style="font-size:1.4rem; margin:16px 0;">
+        Score: <strong id="score-display">0</strong> / <span id="total-questions">0</span>
+      </p>
+      <p>Time spent: <strong id="time-spent-display">--</strong></p>
+      <button onclick="window.location.href='leaderboard.html'">View Leaderboard</button>
+      <button onclick="document.getElementById('results-popup').style.display='none'" style="margin-left:16px; background:#555;">Close</button>
+    </div>
+  </div>
+
+  <!-- Bottom navigation -->
+  <nav class="bottom-nav">
+    <a href="dashboard.html">Home</a>
+    <a href="courses.html">Courses</a>
+    <a href="dailyquiz.html" class="active">Daily Quiz</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="uploadpage.html">Upload</a>
+  </nav>
+
+  <script>
+    // ────────────────────────────────────────────────
+    // Auth guard
+    // ────────────────────────────────────────────────
+    if (!localStorage.getItem('currentUser')) {
+      window.location.href = 'login.html';
+    }
+
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+    // Show name
+    document.getElementById('user-firstname').textContent = currentUser.firstname || 'Guest';
+
+    // Simple avatar (from previous logic)
+    const avatarWrapper = document.getElementById('avatar-wrapper');
+    if (currentUser.profileImage) {
+      avatarWrapper.innerHTML = `<img class="avatar" src="${currentUser.profileImage}" alt="Profile">`;
+    } else {
+      const initial = (currentUser.firstname || '?')[0].toUpperCase();
+      avatarWrapper.innerHTML = `<div class="avatar-placeholder">${initial}</div>`;
+    }
+
+    // ────────────────────────────────────────────────
+    // Theme toggle
+    // ────────────────────────────────────────────────
+    const themeToggle = document.getElementById('theme-toggle');
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      document.body.classList.add('light');
+      themeToggle.textContent = '🌙';
+    } else {
+      themeToggle.textContent = '☀️';
+    }
+
+    themeToggle.onclick = () => {
+      document.body.classList.toggle('light');
+      localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+      themeToggle.textContent = document.body.classList.contains('light') ? '🌙' : '☀️';
+    };
+
+    // ────────────────────────────────────────────────
+    // Daily Quiz Logic
+    // ────────────────────────────────────────────────
+    const today = new Date().toISOString().split('T')[0];
+    if (localStorage.getItem('lastDailyQuizAttempt') === today) {
+      alert("You've already completed today's quiz.\nCome back tomorrow!");
+      window.location.href = 'dashboard.html';
+      return;
+    }
+
+    const quizConfig = JSON.parse(localStorage.getItem('dailyQuizConfig') || '{}');
+    const questions = quizConfig.questions || [];
+    const timeLimitMin = quizConfig.timeLimit || 10;
+
+    if (questions.length === 0) {
+      document.getElementById('question-container').innerHTML = '<p style="text-align:center; padding:40px;">No questions available yet.<br>Check back later!</p>';
+      document.getElementById('submit-quiz').disabled = true;
+    }
+
+    let startTime = Date.now();
+    let timeLeft = timeLimitMin * 60;
+    let timerInterval;
+    let selected = {};
+
+    function formatTime(s) {
+      const m = Math.floor(s / 60);
+      const sec = s % 60;
+      return `\( {m}: \){sec < 10 ? '0' : ''}${sec}`;
+    }
+
+    function startCountdown() {
+      document.getElementById('timer').textContent = `Time left: ${formatTime(timeLeft)}`;
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = `Time left: ${formatTime(timeLeft)}`;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          alert("Time's up! Your quiz is being submitted.");
+          submitQuiz();
+        }
+      }, 1000);
+    }
+
+    function renderQuestions() {
+      const container = document.getElementById('question-container');
+      container.innerHTML = '';
+
+      questions.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'question';
+
+        let imgHtml = q.image ? `<img src="${q.image}" alt="Question image">` : '';
+
+        div.innerHTML = `
+          ${imgHtml}
+          <h3>Question ${i+1}: ${q.question}</h3>
+          <div class="options">
+            ${q.options.map((opt, j) => `
+              <label class="option">
+                <input type="radio" name="q\( {i}" value=" \){j}" ${selected[i] === j ? 'checked' : ''}>
+                ${opt}
+              </label>
+            `).join('')}
+          </div>
+        `;
+
+        div.querySelectorAll('input').forEach(inp => {
+          inp.onchange = () => { selected[i] = parseInt(inp.value); };
+        });
+
+        container.appendChild(div);
+      });
+
+      document.getElementById('total-questions').textContent = questions.length;
+    }
+
+    function submitQuiz() {
+      clearInterval(timerInterval);
+      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+
+      let score = 0;
+      questions.forEach((q, i) => {
+        const chosenIdx = selected[i];
+        if (chosenIdx !== undefined && q.options[chosenIdx] === q.answer) {
+          score++;
+        }
+      });
+
+      localStorage.setItem('lastDailyQuizAttempt', today);
+
+      // Save to leaderboard
+      let lb = JSON.parse(localStorage.getItem('dailyLeaderboard') || '[]');
+      lb.push({
+        firstname: currentUser.firstname || 'Guest',
+        username: currentUser.username || 'unknown',
+        time: timeSpent,
+        score: score
+      });
+      localStorage.setItem('dailyLeaderboard', JSON.stringify(lb));
+
+      // Show results
+      document.getElementById('score-display').textContent = score;
+      document.getElementById('time-spent-display').textContent = `${Math.floor(timeSpent/60)}m ${timeSpent%60}s`;
+      document.getElementById('results-popup').style.display = 'flex';
+    }
+
+    // Start quiz
+    renderQuestions();
+    startCountdown();
+
+    document.getElementById('submit-quiz').onclick = submitQuiz;
+  </script>
+</body>
+</html>
