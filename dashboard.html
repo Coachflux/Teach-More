@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teach-More - Dashboard</title>
+  <style>
+    :root {
+      --bg: #1e1e2f;
+      --surface: #25253b;
+      --text: #e0e0ff;
+      --text-muted: #a0a0cc;
+      --accent: #1db954;
+      --accent-hover: #1ed760;
+      --shadow-dark: #171723;
+      --shadow-light: #2f2f45;
+      --radius: 20px;
+    }
+
+    body.light {
+      --bg: #f0f2f5;
+      --surface: #ffffff;
+      --text: #1a1a3d;
+      --text-muted: #666680;
+      --shadow-dark: #d0d4e0;
+      --shadow-light: #ffffff;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 90px 16px 90px;
+    }
+
+    .top-bar {
+      position: fixed;
+      top:0; left:0; right:0;
+      height:70px;
+      background: var(--surface);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 20px;
+      z-index:100;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    .profile-section {
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+
+    .avatar-wrapper {
+      width:52px; height:52px;
+      border-radius:50%; overflow:hidden;
+      border:2.5px solid var(--accent);
+      cursor:pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .avatar { width:100%; height:100%; object-fit:cover; }
+
+    .avatar-placeholder {
+      width:100%; height:100%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.4rem; font-weight:700; color:white;
+    }
+
+    .welcome h2 { font-size:1rem; color:var(--text-muted); margin-bottom:2px; }
+    .welcome p   { font-size:1.2rem; font-weight:600; color:var(--accent); }
+
+    #profile-upload { display:none; }
+
+    .theme-toggle {
+      background:none; border:none; font-size:1.8rem; cursor:pointer;
+      padding:8px; border-radius:50%;
+    }
+
+    .theme-toggle:hover { background:rgba(255,255,255,0.08); }
+
+    .container { max-width:900px; margin:0 auto; }
+
+    h3 { font-size:1.5rem; color:var(--accent); margin:0 0 20px; }
+
+    .card {
+      background:var(--surface);
+      border-radius:var(--radius);
+      padding:24px;
+      margin-bottom:32px;
+      box-shadow: 8px 8px 20px var(--shadow-dark), -8px -8px 20px var(--shadow-light);
+      transition: all 0.25s;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 12px 12px 30px var(--shadow-dark), -12px -12px 30px var(--shadow-light);
+    }
+
+    .bottom-nav {
+      position:fixed; bottom:0; left:0; right:0;
+      height:70px;
+      background:var(--surface);
+      display:flex;
+      justify-content:space-around;
+      align-items:center;
+      box-shadow:0 -4px 16px rgba(0,0,0,0.2);
+      z-index:100;
+    }
+
+    .bottom-nav a {
+      color:var(--text-muted);
+      text-decoration:none;
+      font-size:0.95rem;
+      text-align:center;
+    }
+
+    .bottom-nav a.active, .bottom-nav a:hover { color:var(--accent); }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="profile-section">
+      <label for="profile-upload">
+        <div class="avatar-wrapper" id="avatar-wrapper"></div>
+      </label>
+      <div class="welcome">
+        <h2>Welcome back,</h2>
+        <p id="user-firstname">Guest</p>
+      </div>
+    </div>
+    <button class="theme-toggle" id="theme-toggle">☀️</button>
+    <input type="file" id="profile-upload" accept="image/*" />
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h3>Featured Content</h3>
+      <p>Carousel or featured courses go here...</p>
+    </div>
+
+    <div class="card">
+      <h3>Quick Access</h3>
+      <p>Icons/links to Courses · Classroom · Daily Quiz · Upload</p>
+    </div>
+
+    <div class="card">
+      <h3>Daily Learning Topics</h3>
+      <p>Your personalized topic cards appear here...</p>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="dashboard.html" class="active">Home</a>
+    <a href="courses.html">Courses</a>
+    <a href="dailyquiz.html">Daily Quiz</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="uploadpage.html">Upload</a>
+  </nav>
+
+  <script>
+    // Auth protection
+    if (!localStorage.getItem('currentUser')) {
+      window.location.href = 'login.html';
+    }
+
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    document.getElementById('user-firstname').textContent = user.firstname || 'Guest';
+
+    // Avatar with colorful fallback
+    const avatarWrapper = document.getElementById('avatar-wrapper');
+    function stringToColor(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      const hue = Math.abs(hash) % 360;
+      return `hsl(${hue}, 70%, 65%)`;
+    }
+
+    function updateAvatar() {
+      if (user.profileImage) {
+        avatarWrapper.innerHTML = `<img class="avatar" src="${user.profileImage}" alt="Profile">`;
+      } else {
+        const color = stringToColor(user.username || user.firstname || 'guest');
+        const initials = (user.firstname?.[0] || '?').toUpperCase();
+        avatarWrapper.innerHTML = `<div class="avatar-placeholder" style="background:\( {color};"> \){initials}</div>`;
+      }
+    }
+    updateAvatar();
+
+    // Profile picture upload + instant preview
+    document.getElementById('profile-upload').onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        user.profileImage = ev.target.result;
+        localStorage.setItem('currentUser', JSON.stringify(user));
+
+        let users = JSON.parse(localStorage.getItem('users') || '[]');
+        const idx = users.findIndex(u => u.username === user.username);
+        if (idx !== -1) {
+          users[idx].profileImage = user.profileImage;
+          localStorage.setItem('users', JSON.stringify(users));
+        }
+
+        updateAvatar();
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light');
+      themeToggle.textContent = '🌙';
+    } else {
+      themeToggle.textContent = '☀️';
+    }
+
+    themeToggle.onclick = () => {
+      document.body.classList.toggle('light');
+      localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+      themeToggle.textContent = document.body.classList.contains('light') ? '🌙' : '☀️';
+    };
+  </script>
+</body>
+</html>
