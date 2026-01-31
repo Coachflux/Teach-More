@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teach-More - Admin Panel</title>
+  <style>
+    /* Reuse your existing neumorphic / dashboard styles here */
+    .hidden { display: none; }
+    .question-block {
+      border: 1px solid #444;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 12px;
+      background: #222;
+    }
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #25253b;
+      padding: 16px;
+      border-radius: 12px;
+      margin: 12px 0;
+      box-shadow: 4px 4px 12px #171723, -4px -4px 12px #2f2f45;
+    }
+    .user-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #1db954;
+    }
+    .user-avatar-placeholder {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #555;
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    input[type="file"] { margin: 8px 0; }
+    textarea, input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #1e1e2f;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar (reuse from dashboard) -->
+
+  <div class="container">
+
+    <!-- Password screen -->
+    <div id="password-screen">
+      <h2>Admin Access Required</h2>
+      <input type="password" id="admin-password" placeholder="Enter password">
+      <button onclick="checkPassword()">Enter</button>
+    </div>
+
+    <!-- Main content – hidden until correct password -->
+    <div id="admin-content" class="hidden">
+
+      <h2>Daily Quiz Configuration</h2>
+
+      <!-- Time limit -->
+      <div style="margin: 20px 0;">
+        <label>Time Limit (minutes):</label>
+        <input type="number" id="time-limit" min="1" value="10">
+        <button onclick="saveTimeLimit()">Save</button>
+      </div>
+
+      <!-- Questions -->
+      <h3>Questions</h3>
+      <div id="questions-list"></div>
+      <button onclick="addNewQuestion()">+ Add Question</button>
+      <br><br>
+      <button onclick="saveAllQuestions()">💾 Save All Questions</button>
+
+      <!-- Users List -->
+      <h3 style="margin-top: 60px;">Registered Users</h3>
+      <div id="users-list"></div>
+
+      <!-- Leaderboard (keeping previous functionality) -->
+      <h3 style="margin-top: 60px;">Leaderboard Management</h3>
+      <table id="admin-table" style="width:100%; border-collapse: collapse;">
+        <!-- ... your existing leaderboard table here ... -->
+      </table>
+      <!-- Add your existing leaderboard buttons & JS functions -->
+
+    </div>
+
+  </div>
+
+  <script>
+    const ADMIN_PASSWORD = "Adminonly123";
+
+    function checkPassword() {
+      if (document.getElementById('admin-password').value === ADMIN_PASSWORD) {
+        document.getElementById('password-screen').classList.add('hidden');
+        document.getElementById('admin-content').classList.remove('hidden');
+        loadAllAdminData();
+      } else {
+        alert("Incorrect password.");
+      }
+    }
+
+    function loadAllAdminData() {
+      loadQuestions();
+      loadUsers();
+      // loadLeaderboard();  ← call your existing function if you have it
+    }
+
+    // ──────────────────────────────
+    // Questions + Image Upload
+    // ──────────────────────────────
+
+    function loadQuestions() {
+      const quizData = JSON.parse(localStorage.getItem('dailyQuizConfig') || '{}');
+      const questions = quizData.questions || [];
+      const container = document.getElementById('questions-list');
+      container.innerHTML = '';
+
+      questions.forEach((q, idx) => {
+        const block = document.createElement('div');
+        block.className = 'question-block';
+        block.dataset.index = idx;
+
+        let imgPreview = '';
+        if (q.image) {
+          imgPreview = `<img src="${q.image}" style="max-width:100%; max-height:220px; border-radius:8px; margin:10px 0; display:block;">`;
+        }
+
+        block.innerHTML = `
+          <strong>Question ${idx + 1}</strong><br>
+          <textarea rows="3">${q.question || ''}</textarea><br>
+
+          Image for question (optional):<br>
+          <input type="file" accept="image/*" class="q-image-upload">
+          ${imgPreview}
+          <small>(Current image will be replaced only if you select a new one)</small><br><br>
+
+          Options (one per line):<br>
+          <textarea rows="6">${(q.options || []).join('\n')}</textarea><br>
+
+          Correct answer:<br>
+          <input type="text" value="${q.answer || ''}"><br>
+
+          Explanation:<br>
+          <textarea rows="4">${q.explanation || ''}</textarea><br>
+
+          <button onclick="deleteQuestion(${idx})">🗑️ Delete</button>
+          <hr>
+        `;
+
+        // Handle image upload preview + base64
+        const fileInput = block.querySelector('.q-image-upload');
+        fileInput.onchange = (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            // We'll save it when "Save All" is clicked
+            block.dataset.pendingImage = ev.target.result;
+            // Show immediate preview
+            let img = block.querySelector('img');
+            if (!img) {
+              img = document.createElement('img');
+              img.style.maxWidth = '100%';
+              img.style.maxHeight = '220px';
+              img.style.borderRadius = '8px';
+              img.style.margin = '10px 0';
+              img.style.display = 'block';
+              block.insertBefore(img, block.querySelector('small'));
+            }
+            img.src = ev.target.result;
+          };
+          reader.readAsDataURL(file);
+        };
+
+        container.appendChild(block);
+      });
+
+      document.getElementById('time-limit').value = quizData.timeLimit || 10;
+    }
+
+    function addNewQuestion() {
+      const quizData = JSON.parse(localStorage.getItem('dailyQuizConfig') || '{}');
+      quizData.questions = quizData.questions || [];
+      quizData.questions.push({
+        question: "",
+        options: [],
+        answer: "",
+        explanation: "",
+        image: null
+      });
+      localStorage.setItem('dailyQuizConfig', JSON.stringify(quizData));
+      loadQuestions();
+    }
+
+    function deleteQuestion(idx) {
+      if (!confirm("Delete question?")) return;
+      const quizData = JSON.parse(localStorage.getItem('dailyQuizConfig') || '{}');
+      quizData.questions.splice(idx, 1);
+      localStorage.setItem('dailyQuizConfig', JSON.stringify(quizData));
+      loadQuestions();
+    }
+
+    function saveAllQuestions() {
+      const quizData = {
+        timeLimit: parseInt(document.getElementById('time-limit').value) || 10,
+        questions: []
+      };
+
+      document.querySelectorAll('.question-block').forEach(block => {
+        const idx = block.dataset.index;
+        const pendingImage = block.dataset.pendingImage;
+
+        const q = {
+          question: block.querySelector('textarea:nth-of-type(1)').value.trim(),
+          options: block.querySelector('textarea:nth-of-type(2)').value
+            .split('\n')
+            .map(line => line.trim())
+            .filter(Boolean),
+          answer: block.querySelector('input[type="text"]').value.trim(),
+          explanation: block.querySelector('textarea:nth-of-type(3)').value.trim(),
+          image: pendingImage || (JSON.parse(localStorage.getItem('dailyQuizConfig') || '{}').questions?.[idx]?.image || null)
+        };
+
+        quizData.questions.push(q);
+      });
+
+      localStorage.setItem('dailyQuizConfig', JSON.stringify(quizData));
+      alert("All questions, images, and time limit saved.");
+      loadQuestions(); // refresh to clear pending flags
+    }
+
+    function saveTimeLimit() {
+      const quizData = JSON.parse(localStorage.getItem('dailyQuizConfig') || '{}');
+      quizData.timeLimit = parseInt(document.getElementById('time-limit').value) || 10;
+      localStorage.setItem('dailyQuizConfig', JSON.stringify(quizData));
+      alert("Time limit saved.");
+    }
+
+    // ──────────────────────────────
+    // Users List with Profile Photos
+    // ──────────────────────────────
+
+    function loadUsers() {
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const container = document.getElementById('users-list');
+      container.innerHTML = '';
+
+      if (users.length === 0) {
+        container.innerHTML = '<p>No users registered yet.</p>';
+        return;
+      }
+
+      users.forEach(user => {
+        let avatarHTML = user.profileImage
+          ? `<img src="\( {user.profileImage}" class="user-avatar" alt=" \){user.firstname}">`
+          : `<div class="user-avatar-placeholder">${(user.firstname?.[0] || '?').toUpperCase()}</div>`;
+
+        const card = document.createElement('div');
+        card.className = 'user-card';
+        card.innerHTML = `
+          ${avatarHTML}
+          <div>
+            <strong>${user.firstname} ${user.lastname || ''}</strong><br>
+            <small>@${user.username}</small><br>
+            <small>${user.email || '—'}</small>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
