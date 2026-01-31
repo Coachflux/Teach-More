@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teach-More - Login / Sign Up</title>
+  <style>
+    :root {
+      --bg: #1e1e2f;
+      --surface: #25253b;
+      --text: #e0e0ff;
+      --text-muted: #a0a0cc;
+      --accent: #1db954;
+      --accent-hover: #1ed760;
+      --shadow-dark: #171723;
+      --shadow-light: #2f2f45;
+      --radius: 20px;
+    }
+
+    body.light {
+      --bg: #f0f2f5;
+      --surface: #ffffff;
+      --text: #1a1a3d;
+      --text-muted: #666680;
+      --shadow-dark: #d0d4e0;
+      --shadow-light: #ffffff;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 40px 28px;
+      box-shadow: 10px 10px 30px var(--shadow-dark), -10px -10px 30px var(--shadow-light);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+      font-size: 2rem;
+      color: var(--accent);
+    }
+
+    .toggle-text {
+      text-align: center;
+      margin: 16px 0 32px;
+      color: var(--text-muted);
+    }
+
+    .toggle-text a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border: none;
+      border-radius: 12px;
+      background: #2a2a48;
+      color: white;
+      font-size: 1rem;
+      box-shadow: inset 3px 3px 8px #1a1a2f, inset -3px -3px 8px #383856;
+    }
+
+    body.light input {
+      background: #e8e8f0;
+      box-shadow: inset 3px 3px 8px #d0d4e0, inset -3px -3px 8px #ffffff;
+      color: #1a1a3d;
+    }
+
+    input::placeholder { color: #777; }
+
+    .error {
+      color: #ff4d4d;
+      font-size: 0.85rem;
+      margin-top: 6px;
+      display: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover { background: var(--accent-hover); transform: translateY(-2px); }
+
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: inherit;
+    }
+  </style>
+</head>
+<body class="dark">
+
+  <button class="theme-toggle" id="theme-toggle">☀️</button>
+
+  <div class="container">
+    <h1 id="form-title">Sign Up</h1>
+    <p class="toggle-text" id="toggle-text">
+      Already have an account? <a href="#" id="toggle-link">Login</a>
+    </p>
+
+    <form id="auth-form">
+      <div class="form-group" id="firstname-group">
+        <label for="firstname">First Name</label>
+        <input type="text" id="firstname" placeholder="Enter first name" />
+        <div class="error" id="firstname-error">First name is required</div>
+      </div>
+
+      <div class="form-group" id="lastname-group">
+        <label for="lastname">Last Name</label>
+        <input type="text" id="lastname" placeholder="Enter last name" />
+        <div class="error" id="lastname-error">Last name is required</div>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Choose username" required />
+        <div class="error" id="username-error">Username is required</div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="your@email.com" required />
+        <div class="error" id="email-error">Valid email required</div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="At least 6 characters" required />
+        <div class="error" id="password-error">Password must be ≥6 characters</div>
+      </div>
+
+      <button type="submit" id="submit-btn">Sign Up</button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('auth-form');
+    const toggleLink = document.getElementById('toggle-link');
+    const formTitle = document.getElementById('form-title');
+    const toggleText = document.getElementById('toggle-text');
+    const submitBtn = document.getElementById('submit-btn');
+
+    const firstnameGroup = document.getElementById('firstname-group');
+    const lastnameGroup = document.getElementById('lastname-group');
+
+    let isLogin = false;
+
+    function switchMode() {
+      isLogin = !isLogin;
+      if (isLogin) {
+        formTitle.textContent = 'Login';
+        toggleText.innerHTML = `Don't have an account? <a href="#" id="toggle-link">Sign Up</a>`;
+        submitBtn.textContent = 'Login';
+        firstnameGroup.style.display = 'none';
+        lastnameGroup.style.display = 'none';
+      } else {
+        formTitle.textContent = 'Sign Up';
+        toggleText.innerHTML = `Already have an account? <a href="#" id="toggle-link">Login</a>`;
+        submitBtn.textContent = 'Sign Up';
+        firstnameGroup.style.display = 'block';
+        lastnameGroup.style.display = 'block';
+      }
+      document.getElementById('toggle-link').onclick = e => { e.preventDefault(); switchMode(); };
+    }
+
+    toggleLink.onclick = e => { e.preventDefault(); switchMode(); };
+
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    themeToggle.onclick = () => {
+      document.body.classList.toggle('light');
+      localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+      themeToggle.textContent = document.body.classList.contains('light') ? '🌙' : '☀️';
+    };
+
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light');
+      themeToggle.textContent = '🌙';
+    }
+
+    // Form submit
+    form.onsubmit = e => {
+      e.preventDefault();
+
+      const firstname = document.getElementById('firstname').value.trim();
+      const lastname  = document.getElementById('lastname').value.trim();
+      const username  = document.getElementById('username').value.trim();
+      const email     = document.getElementById('email').value.trim();
+      const password  = document.getElementById('password').value;
+
+      document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+
+      let valid = true;
+
+      if (!isLogin) {
+        if (!firstname) { document.getElementById('firstname-error').style.display = 'block'; valid = false; }
+        if (!lastname)  { document.getElementById('lastname-error').style.display = 'block'; valid = false; }
+      }
+      if (!username)  { document.getElementById('username-error').style.display = 'block'; valid = false; }
+      if (!email || !email.includes('@')) { document.getElementById('email-error').style.display = 'block'; valid = false; }
+      if (!password || password.length < 6) { document.getElementById('password-error').style.display = 'block'; valid = false; }
+
+      if (!valid) return;
+
+      let users = JSON.parse(localStorage.getItem('users') || '[]');
+
+      if (isLogin) {
+        // Login
+        const user = users.find(u => u.username === username && u.password === password);
+        if (user) {
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          window.location.href = 'dashboard.html';
+        } else {
+          alert('Invalid username or password');
+        }
+      } else {
+        // Sign Up
+        if (users.some(u => u.username === username)) {
+          alert('Username already taken');
+          return;
+        }
+
+        const newUser = { firstname, lastname, username, email, password, profileImage: null };
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+        localStorage.setItem('currentUser', JSON.stringify(newUser));
+        window.location.href = 'dashboard.html';
+      }
+    };
+  </script>
+</body>
+</html>
