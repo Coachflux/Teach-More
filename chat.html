@@ -4,15 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Group Chat • WhatsApp Style</title>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
   <style>
     :root {
-      --bg: #e5ddd5;                /* WhatsApp light bg */
+      --bg: #e5ddd5;
       --surface: #ffffff;
       --text: #111b21;
       --text-secondary: #3b4a54;
-      --accent-sent: #d9fdd3;       /* light green sent bubbles */
+      --accent-sent: #d9fdd3;
       --accent-recv: #ffffff;
       --shadow-dark: rgba(0,0,0,0.12);
       --shadow-light: rgba(255,255,255,0.8);
@@ -47,7 +45,7 @@
     }
 
     header {
-      background: #008069;          /* WhatsApp green header */
+      background: #008069;
       color: white;
       padding: 12px 16px;
       display: flex;
@@ -100,7 +98,7 @@
     .message .sender {
       font-size: 0.78rem;
       font-weight: 600;
-      color: #1e6d5e;               /* darker green for sender name */
+      color: #1e6d5e;
       margin-bottom: 3px;
       display: block;
     }
@@ -183,23 +181,26 @@
     <button id="sendBtn">➤</button>
   </div>
 
-  <script>
-    // ← PASTE YOUR FIREBASE CONFIG HERE
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDrHjrAfOd0YVFxy9-PTXX2DJ-MeerqS7Q",
-  authDomain: "teach-more.firebaseapp.com",
-  projectId: "teach-more",
-  storageBucket: "teach-more.firebasestorage.app",
-  messagingSenderId: "199102894627",
-  appId: "1:199102894627:web:f518551905763d01651796",
-  measurementId: "G-JG8YL4WZJR"
-};
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded, onValue, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const messagesRef = db.ref('messages');
-    const typingRef = db.ref('typing');
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrHjrAfOd0YVFxy9-PTXX2DJ-MeerqS7Q",
+      authDomain: "teach-more.firebaseapp.com",
+      projectId: "teach-more",
+      storageBucket: "teach-more.firebasestorage.app",
+      messagingSenderId: "199102894627",
+      appId: "1:199102894627:web:f518551905763d01651796",
+      measurementId: "G-JG8YL4WZJR",
+      databaseURL: "https://teach-more-default-rtdb.firebaseio.com/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const messagesRef = ref(db, 'messages');
+    const typingRef   = ref(db, 'typing');
 
     const chat = document.getElementById('chat');
     const input = document.getElementById('messageInput');
@@ -235,9 +236,12 @@ const firebaseConfig = {
     }
 
     // Listen for new messages
-    messagesRef.on('child_added', (snapshot) => {
+    onChildAdded(messagesRef, (snapshot) => {
       const msg = snapshot.val();
-      addMessage(msg.text, msg.sender, msg.sender === "You");
+      addMessage(msg.text, msg.sender || "Someone", msg.sender === "You");
+    }, (error) => {
+      console.error("Messages listener error:", error);
+      alert("Error loading messages: " + error.message);
     });
 
     // Send message
@@ -245,32 +249,40 @@ const firebaseConfig = {
       const text = input.value.trim();
       if (!text) return;
 
-      messagesRef.push({
+      push(messagesRef, {
         text,
         sender: "You",
         timestamp: Date.now()
+      }).catch(err => {
+        console.error("Send failed:", err);
+        alert("Failed to send message: " + err.message);
       });
 
       input.value = '';
-      typingRef.set(false);
+      set(typingRef, false);
     }
 
     sendBtn.onclick = sendMessage;
-    input.onkeypress = e => { if (e.key === 'Enter') sendMessage(); };
-
-    // Typing indicator (simple broadcast)
-    input.oninput = () => {
-      typingRef.set(true);
-      clearTimeout(window.typingTimer);
-      window.typingTimer = setTimeout(() => typingRef.set(false), 1800);
+    input.onkeypress = e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
     };
 
-    typingRef.on('value', snap => {
+    // Typing indicator
+    input.oninput = () => {
+      set(typingRef, true);
+      clearTimeout(window.typingTimer);
+      window.typingTimer = setTimeout(() => set(typingRef, false), 1800);
+    };
+
+    onValue(typingRef, snap => {
       typingIndicator.textContent = snap.val() ? "Someone is typing..." : "";
     });
 
-    // Welcome
-    addMessage("Welcome to the group! 👋 Everyone can see your messages.", "System", false);
+    // Welcome message on first load
+    addMessage("Welcome to the group chat! 👋 Everyone can see your messages in real-time.", "System", false);
   </script>
 
 </body>
