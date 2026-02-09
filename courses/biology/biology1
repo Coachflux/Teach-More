@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neumorphism Courses Page</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+
+    :root {
+      --background: #1e1e2f;
+      --shadow-in: #171723;
+      --shadow-out: #25253b;
+      --text: #fff;
+      --accent: #1db954;
+    }
+
+    body.light {
+      --background: #e0e0e0;
+      --shadow-in: #bebebe;
+      --shadow-out: #ffffff;
+      --text: #333;
+      --accent: #1db954;
+    }
+
+    body {
+      background: var(--background);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      background: var(--background);
+      border-radius: 20px;
+      box-shadow: 10px 10px 20px var(--shadow-in), -10px -10px 20px var(--shadow-out);
+      overflow: hidden;
+      position: relative;
+      height: 700px;
+      overflow-y: auto;
+      padding-top: 70px; /* Space for fixed top bar */
+      padding-bottom: 70px; /* Space for fixed nav bar */
+    }
+
+    /* Neumorphism Styles */
+    .neumorphic {
+      background: var(--background);
+      box-shadow: 5px 5px 10px var(--shadow-in), -5px -5px 10px var(--shadow-out);
+      border-radius: 15px;
+    }
+
+    .neumorphic-btn {
+      background: var(--background);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 3px 3px 6px var(--shadow-in), -3px -3px 6px var(--shadow-out);
+      cursor: pointer;
+      color: var(--text);
+      font-size: 18px;
+    }
+
+    .neumorphic-btn:active {
+      box-shadow: inset 3px 3px 6px var(--shadow-in), inset -3px -3px 6px var(--shadow-out);
+    }
+
+    /* Top Fixed Container */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      max-width: 400px;
+      background: var(--background);
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 5px 10px var(--shadow-in);
+      z-index: 20;
+    }
+
+    .top-bar .header {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--text);
+    }
+
+    .top-bar .right-icons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .top-bar .profile-upload {
+      position: relative;
+    }
+
+    .top-bar .profile-upload input {
+      opacity: 0;
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
+
+    /* Courses Container */
+    .courses {
+      padding: 20px 10px;
+      margin-top: 70px;
+      margin-bottom: 70px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: calc(100% - 140px); /* Adjust for top and nav bar */
+    }
+
+    .course-card {
+      position: relative;
+      width: calc(100% - 20px);
+      margin: 0 auto;
+      margin-top: -30px; /* Overlap for stacking effect */
+      background: var(--background);
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: 5px 5px 10px var(--shadow-in), -5px -5px 10px var(--shadow-out);
+      cursor: pointer;
+      transition: z-index 0.3s ease;
+      z-index: 1;
+    }
+
+    .course-card.active {
+      z-index: 10;
+    }
+
+    .course-card h3 {
+      font-size: 16px;
+      margin-bottom: 5px;
+      color: #fff;
+    }
+
+    .course-card p {
+      font-size: 12px;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    body.light .course-card p {
+      color: #666;
+    }
+
+    .course-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .course-card .explore-btn {
+      background: var(--accent);
+      border: none;
+      padding: 8px 15px;
+      border-radius: 15px;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 3px 3px 6px var(--shadow-in);
+      display: block;
+    }
+
+    /* Colors for each card */
+    .course-card:nth-child(1) { background: #4BCA81; }
+    .course-card:nth-child(2) { background: #F9A800; }
+    .course-card:nth-child(3) { background: #FF6F61; }
+    .course-card:nth-child(4) { background: #E6F7FF; }
+    .course-card:nth-child(5) { background: #A29FEC; }
+    .course-card:nth-child(6) { background: #4A90E2; }
+    .course-card:nth-child(7) { background: #50E3C2; }
+    .course-card:nth-child(8) { background: #343A40; }
+
+    /* Footer Nav Bar */
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 400px;
+      background: var(--background);
+      padding: 10px;
+      display: flex;
+      justify-content: space-around;
+      box-shadow: 0 -5px 10px var(--shadow-in);
+      z-index: 20;
+    }
+
+    .nav-bar .nav-item {
+      text-align: center;
+      position: relative;
+    }
+
+    .nav-bar .nav-item button {
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+    }
+
+    .nav-bar .nav-item.center button {
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      background: var(--accent);
+      box-shadow: 0 0 15px var(--accent), 3px 3px 6px var(--shadow-in), -3px -3px 6px var(--shadow-out);
+    }
+
+    .nav-bar .nav-item.active button {
+      background: var(--accent);
+      box-shadow: inset 3px 3px 6px var(--shadow-in), inset -3px -3px 6px var(--shadow-out);
+    }
+
+    .nav-bar .nav-item p {
+      display: none;
+      font-size: 12px;
+      margin-top: 5px;
+      color: var(--text);
+    }
+
+    .nav-bar .nav-item.active p {
+      display: block;
+    }
+  </style>
+</head>
+<body class="dark">
+  <div class="container">
+    <!-- Top Fixed Container -->
+    <div class="top-bar neumorphic">
+      <button class="neumorphic-btn">←</button>
+      <div class="header">Courses</div>
+      <div class="right-icons">
+        <button class="neumorphic-btn" id="theme-toggle">🌙</button>
+        <button class="neumorphic-btn profile-upload">
+          📷
+          <input type="file" accept="image/*" id="profile-upload">
+        </button>
+      </div>
+    </div>
+
+    <!-- Courses Container -->
+    <div class="courses">
+      <div class="course-card">
+        <h3>Course 1</h3>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <img src="https://via.placeholder.com/300x150" alt="Course 1">
+        <button class="explore-btn">Explore</button>
+      </div>
+      <div class="course-card">
+        <h3>Course 2</h3>
+        <p>Consectetur adipiscing elit.</p>
+        <img src="https://via.placeholder.com/300x150" alt="Course 2">
+        <button class="explore-btn">Explore</button>
+      </div>
+      <div class="course-card">
+        <h3>HUMAN Anatomy</h3>
+        <p>Explore The Anatomy Of The Human Body.</p>
+        <img src="./img/humans1.png" alt="Course 3">
+        <button class="explore-btn">Explore</button>
+      </div>
+      <div class="course-card">
+        <h3>Course 4</h3>
+        <p>Ut enim ad minim veniam.</p>
+        <img src="https://via.placeholder.com/300x150" alt="Course 4">
+        <button class="explore-btn">Explore</button>
+      </div>
+      <div class="course-card">
+        <h3>Course 5</h3>
+        <p>Quis nostrud exercitation.</p>
+        <img src="https://via.placeholder.com/300x150" alt="Course 5">
+        <button class="explore-btn">Explore</button>
+      </div>
+      <div class="course-card">
+        <h3>Course 6</h3>
+        <p>Duis aute irure dolor.</p>
+        <img src="https://via.placeholder.com/300x150" alt="Course 6">
+        <button class="explore-btn">Explore</button>
+      </div>
+      <div class="course-card">
+        <h3>Course 7</h3>
+        <p>In reprehenderit in voluptate.</p>
+        <img src="https://via.placeholder.com/300x150" alt="Course 7">
+        <button class="explore-btn">Explore</button>
+      </div>
+      <div class="course-card active">
+        <h3>Course 8</h3>
+        <p>Excepteur sint occaecat.</p>
+        <img src="https://via.placeholder.com/300x150" alt="Course 8">
+        <button class="explore-btn">Explore</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Nav Bar -->
+  <div class="nav-bar">
+    <div class="nav-item active">
+      <button class="neumorphic-btn">🏠</button>
+      <p>Home</p>
+    </div>
+    <div class="nav-item">
+      <button class="neumorphic-btn">🔍</button>
+      <p>Search</p>
+    </div>
+    <div class="nav-item center">
+      <button class="neumorphic-btn">⭐</button>
+      <p>Favorite</p>
+    </div>
+    <div class="nav-item">
+      <button class="neumorphic-btn">📚</button>
+      <p>Library</p>
+    </div>
+    <div class="nav-item">
+      <button class="neumorphic-btn">⚙️</button>
+      <p>Settings</p>
+    </div>
+  </div>
+
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+
+    function setTheme(theme) {
+      body.className = theme;
+      themeToggle.textContent = theme === 'light' ? '🌙' : '☀';
+      localStorage.setItem('theme', theme);
+    }
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const newTheme = body.classList.contains('light') ? 'dark' : 'light';
+      setTheme(newTheme);
+    });
+
+    // Profile Upload
+    const profileUpload = document.getElementById('profile-upload');
+    profileUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          console.log('Profile image uploaded:', e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Course Card Interaction
+    const courseCards = document.querySelectorAll('.course-card');
+    courseCards.forEach(card => {
+      card.addEventListener('click', () => {
+        courseCards.forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+      });
+    });
+
+    // Footer Navigation Bar
+    const navItems = document.querySelectorAll('.nav-bar .nav-item');
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        navItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
